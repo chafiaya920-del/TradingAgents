@@ -31,4 +31,11 @@ DEFAULT_CONFIG = {
     "tool_vendors": {
         # Example: "get_stock_data": "alpha_vantage",  # Override category default
     },
+    # n8n Webhook Integration
+    # Set n8n_webhook_url to automatically send trade signals to your n8n instance.
+    # Compatible with any n8n Webhook node (HTTP POST trigger).
+    # Leave as None to disable.
+    "n8n_webhook_url": None,            # e.g. "https://your-n8n.com/webhook/trading-signal"
+    "n8n_webhook_include_reports": True, # Include full analyst reports in payload
+    "n8n_webhook_timeout": 10,          # HTTP timeout in seconds
 }
