@@ -217,3 +217,63 @@ Please reference our work if you find *TradingAgents* provides you with some hel
       url={https://arxiv.org/abs/2412.20138}, 
 }
 ```
+
+---
+
+## n8n Integration
+
+> Added by [Aya Chafi](https://github.com/chafiaya920-del) — bridges TradingAgents with [n8n](https://n8n.io) automation workflows.
+
+After each analysis run, TradingAgents can automatically fire a webhook to your n8n instance, delivering the full trade signal and reports. Use this to build automations like:
+
+- **Telegram/Slack alerts** when a BUY or SELL signal is generated
+- **Google Sheets logging** of every trade decision
+- **Portfolio rebalancing triggers** connected to broker APIs
+- **Email digests** with full analyst reports attached
+
+### Setup
+
+**Step 1 — Add a Webhook node in n8n**
+1. Create a new workflow in n8n
+2. Add a **Webhook** trigger node
+3. Set method to **POST**, copy the webhook URL
+
+**Step 2 — Configure TradingAgents**
+
+```python
+from tradingagents.graph.trading_graph import TradingAgentsGraph
+from tradingagents.default_config import DEFAULT_CONFIG
+
+config = {
+    **DEFAULT_CONFIG,
+    "n8n_webhook_url": "https://your-n8n-instance.com/webhook/trading-signal",
+    "n8n_webhook_include_reports": True,   # include full analyst reports
+    "n8n_webhook_timeout": 10,             # seconds
+}
+
+ta = TradingAgentsGraph(config=config)
+final_state, signal = ta.propagate("AAPL", "2026-03-09")
+# → webhook fires automatically with signal + full reports
+```
+
+### Webhook Payload
+
+```json
+{
+  "ticker": "AAPL",
+  "date": "2026-03-09",
+  "signal": "BUY",
+  "timestamp": "2026-03-09T21:00:00Z",
+  "final_trade_decision": "...",
+  "trader_investment_plan": "...",
+  "investment_plan": "...",
+  "market_report": "...",
+  "sentiment_report": "...",
+  "news_report": "...",
+  "fundamentals_report": "...",
+  "bull_case": "...",
+  "risk_assessment": "..."
+}
+```
+
+Set `n8n_webhook_include_reports: False` to send only the signal metadata (lighter payload).
