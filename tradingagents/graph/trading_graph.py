@@ -38,6 +38,7 @@ from .setup import GraphSetup
 from .propagation import Propagator
 from .reflection import Reflector
 from .signal_processing import SignalProcessor
+from tradingagents.outputs.n8n_webhook import send_to_n8n
 
 
 class TradingAgentsGraph:
@@ -215,8 +216,24 @@ class TradingAgentsGraph:
         # Log state
         self._log_state(trade_date, final_state)
 
+        # Extract signal
+        signal = self.process_signal(final_state['final_trade_decision'])
+
+        # Fire n8n webhook if configured
+        webhook_url = self.config.get('n8n_webhook_url')
+        if webhook_url:
+            send_to_n8n(
+                webhook_url=webhook_url,
+                ticker=company_name,
+                trade_date=trade_date,
+                signal=signal,
+                final_state=final_state,
+                include_reports=self.config.get('n8n_webhook_include_reports', True),
+                timeout=self.config.get('n8n_webhook_timeout', 10),
+            )
+
         # Return decision and processed signal
-        return final_state, self.process_signal(final_state["final_trade_decision"])
+        return final_state, signal
 
     def _log_state(self, trade_date, final_state):
         """Log the final state to a JSON file."""
