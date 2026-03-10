@@ -39,6 +39,7 @@ from .propagation import Propagator
 from .reflection import Reflector
 from .signal_processing import SignalProcessor
 from tradingagents.outputs.n8n_webhook import send_to_n8n
+from tradingagents.agents.analysts.crypto_analyst import create_crypto_analyst, CRYPTO_ANALYST_TOOLS
 
 
 class TradingAgentsGraph:
@@ -173,6 +174,7 @@ class TradingAgentsGraph:
                     get_insider_transactions,
                 ]
             ),
+            "crypto": ToolNode(CRYPTO_ANALYST_TOOLS),
             "fundamentals": ToolNode(
                 [
                     # Fundamental analysis tools
