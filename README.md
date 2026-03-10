@@ -277,3 +277,52 @@ final_state, signal = ta.propagate("AAPL", "2026-03-09")
 ```
 
 Set `n8n_webhook_include_reports: False` to send only the signal metadata (lighter payload).
+
+
+---
+
+## Crypto Support (CoinGecko)
+
+> Added by [Aya Chafi](https://github.com/chafiaya920-del) — extends TradingAgents to support cryptocurrency analysis via CoinGecko.
+
+Analyze BTC, ETH, SOL, and 10,000+ other tokens using the same multi-agent framework. No API key required — powered by the CoinGecko free API.
+
+### Usage
+
+```python
+from tradingagents.graph.trading_graph import TradingAgentsGraph
+from tradingagents.default_config import DEFAULT_CONFIG
+
+config = {**DEFAULT_CONFIG}
+
+# Use "crypto" analyst instead of (or alongside) "market"
+ta = TradingAgentsGraph(
+    selected_analysts=["crypto", "news", "fundamentals"],
+    config=config,
+)
+
+final_state, signal = ta.propagate("BTC", "2026-03-09")
+print(signal)  # BUY / SELL / HOLD
+```
+
+Supported symbols: BTC, ETH, SOL, BNB, XRP, ADA, DOGE, AVAX, DOT, LINK, MATIC, UNI, LTC, ARB, OP, SUI, PEPE, and more.
+
+### What the Crypto Analyst covers
+
+- **Price action** — 30-day historical price and volume from CoinGecko
+- **Market structure** — market cap rank, ATH distance, supply dynamics
+- **Fundamental strength** — project category, developer activity (GitHub commits, stars), community size
+- **Risk assessment** — volatility, liquidity, market phase
+- **Signal** — BULLISH / NEUTRAL / BEARISH with rationale
+
+### Combine with n8n
+
+```python
+config = {
+    **DEFAULT_CONFIG,
+    "n8n_webhook_url": "https://your-n8n.com/webhook/crypto-signal",
+}
+ta = TradingAgentsGraph(selected_analysts=["crypto", "news"], config=config)
+ta.propagate("ETH", "2026-03-09")
+# → full crypto analysis fires to your n8n workflow automatically
+```
